@@ -5,6 +5,6 @@ export interface Transaction {
   amount: number;
   type: 'income' | 'expense';
   date: string;
-  note?: string;  // Using 'note' to match database
+  note?: string;  
   created_at?: string;
 }

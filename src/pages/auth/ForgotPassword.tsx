@@ -14,7 +14,7 @@ export default function ForgotPassword() {
       return;
     }
 
-    // In a real app, this would send an email
+
     setMessage(`Password reset link would be sent to ${email} (Demo mode)`);
     setError('');
   };

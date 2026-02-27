@@ -60,7 +60,6 @@ export default function TransactionForm() {
         })
       ).unwrap();
 
-      // Reset all fields
       setAmount('');
       setNote('');
       setType('');
@@ -109,7 +108,7 @@ export default function TransactionForm() {
               value={type}
               onChange={(e) => {
                 setType(e.target.value as 'income' | 'expense');
-                setCategoryId(''); // Clear category when type changes
+                setCategoryId(''); 
               }}
               InputLabelProps={{ htmlFor: 'type-field' }}
             >
