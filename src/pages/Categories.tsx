@@ -22,7 +22,7 @@ import type { RootState, AppDispatch } from '../redux/store';
 import DeleteIcon from '@mui/icons-material/Delete';
 import IconButton from '@mui/material/IconButton';
 import AddIcon from '@mui/icons-material/Add';
-import { PREDEFINED_ICON_OPTIONS, renderCategoryIcon } from '../utils/categoryIcons';
+import { CATEGORY_ICON_OPTIONS, renderCategoryIcon } from '../utils/categoryIcons';
 
 const PREDEFINED_COLORS = [
   '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD',
@@ -35,7 +35,7 @@ export default function Categories() {
   const categories = useSelector((state: RootState) => state.categories.categories);
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
-  const [icon, setIcon] = useState(PREDEFINED_ICON_OPTIONS[0].key);
+  const [icon, setIcon] = useState('payments');
   const [color, setColor] = useState('#4F46E5');
   const [categoryType, setCategoryType] = useState<'income' | 'expense' | 'both'>('expense');
   const [error, setError] = useState('');
@@ -54,7 +54,7 @@ export default function Categories() {
     }
 
     const existingCategory = categories.find(
-      (cat) => cat.name.toLowerCase() === name.toLowerCase() && !cat.is_default,
+      (cat) => cat.name.toLowerCase() === name.toLowerCase() && !cat.is_default
     );
 
     if (existingCategory) {
@@ -71,11 +71,11 @@ export default function Categories() {
           color,
           type: categoryType,
           is_default: false,
-        }),
+        })
       ).unwrap();
 
       setName('');
-      setIcon(PREDEFINED_ICON_OPTIONS[0].key);
+      setIcon('payments');
       setColor('#4F46E5');
       setCategoryType('expense');
       setOpen(false);
@@ -131,6 +131,9 @@ export default function Categories() {
               <CardContent sx={{ borderTop: `4px solid ${cat.color}` }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', color: 'text.secondary' }}>
+                      {renderCategoryIcon(cat.icon, { fontSize: 'medium' }, cat.name)}
+                    </Box>
                     <Box>
                       <Typography variant="h6">{cat.name}</Typography>
                       {cat.is_default && (
@@ -184,14 +187,15 @@ export default function Categories() {
 
           <Typography variant="subtitle2" sx={{ mb: 1 }}>Select Icon</Typography>
           <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
-            {PREDEFINED_ICON_OPTIONS.map((option) => (
+            {CATEGORY_ICON_OPTIONS.map((ico) => (
               <Button
-                key={option.key}
-                variant={icon === option.key ? 'contained' : 'outlined'}
-                onClick={() => setIcon(option.key)}
-                sx={{ minWidth: 'auto', p: 1 }}
+                key={ico.key}
+                variant={icon === ico.key ? 'contained' : 'outlined'}
+                onClick={() => setIcon(ico.key)}
+                sx={{ minWidth: 44, p: 1 }}
+                title={ico.label}
               >
-                {renderCategoryIcon(option.key, { fontSize: 'medium' })}
+                {renderCategoryIcon(ico.key, { fontSize: 'small' })}
               </Button>
             ))}
           </Box>

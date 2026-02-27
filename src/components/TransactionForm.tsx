@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from 'react';
 import {
   TextField,
   Button,
@@ -9,26 +9,25 @@ import {
   Typography,
   Alert,
   Snackbar,
-} from "@mui/material";
-import { useDispatch, useSelector } from "react-redux";
-import { addTransaction } from "../redux/slices/transactionSlice";
-import { fetchCategories } from "../redux/slices/categorySlice";
-import type { RootState, AppDispatch } from "../redux/store";
+} from '@mui/material';
+import { useDispatch, useSelector } from 'react-redux';
+import { addTransaction } from '../redux/slices/transactionSlice';
+import { fetchCategories } from '../redux/slices/categorySlice';
+import type { RootState, AppDispatch } from '../redux/store';
+import { renderCategoryIcon } from '../utils/categoryIcons';
 
 export default function TransactionForm() {
   const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((state: RootState) => state.auth.user);
-  const categories = useSelector(
-    (state: RootState) => state.categories.categories,
-  );
+  const categories = useSelector((state: RootState) => state.categories.categories);
 
-  const [amount, setAmount] = useState("");
-  const [type, setType] = useState<"income" | "expense" | "">("");
-  const [categoryId, setCategoryId] = useState("");
-  const [note, setNote] = useState("");
-  const [date, setDate] = useState("");
-  const [success, setSuccess] = useState("");
-  const [error, setError] = useState("");
+  const [amount, setAmount] = useState('');
+  const [type, setType] = useState<'income' | 'expense' | ''>('');
+  const [categoryId, setCategoryId] = useState('');
+  const [note, setNote] = useState('');
+  const [date, setDate] = useState('');
+  const [success, setSuccess] = useState('');
+  const [error, setError] = useState('');
 
   useEffect(() => {
     if (user) {
@@ -38,13 +37,14 @@ export default function TransactionForm() {
 
   const filteredCategories = useMemo(() => {
     if (!type) return [];
-    return categories.filter((c) => c.type === type || c.type === "both");
+
+    return categories.filter((c) => c.type === type || c.type === 'both');
   }, [categories, type]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!amount || !date || !user || !type || !categoryId) {
-      setError("Please fill all required fields");
+      setError('Please fill all required fields');
       return;
     }
 
@@ -57,20 +57,20 @@ export default function TransactionForm() {
           category_id: categoryId,
           note: note,
           date,
-        }),
+        })
       ).unwrap();
-      setAmount("");
-      setNote("");
-      setType("");
-      setDate("");
-      setCategoryId("");
-      setSuccess("Transaction added successfully!");
-      setTimeout(() => setSuccess(""), 3000);
+
+      // Reset all fields
+      setAmount('');
+      setNote('');
+      setType('');
+      setDate('');
+      setCategoryId('');
+      setSuccess('Transaction added successfully!');
+      setTimeout(() => setSuccess(''), 3000);
     } catch (err: unknown) {
-      setError(
-        err instanceof Error ? err.message : "Failed to add transaction",
-      );
-      setTimeout(() => setError(""), 3000);
+      setError(err instanceof Error ? err.message : 'Failed to add transaction');
+      setTimeout(() => setError(''), 3000);
     }
   };
 
@@ -79,31 +79,17 @@ export default function TransactionForm() {
       <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
         Add Transaction
       </Typography>
-
-      <Snackbar
-        open={!!success}
-        autoHideDuration={3000}
-        onClose={() => setSuccess("")}
-      >
+      
+      <Snackbar open={!!success} autoHideDuration={3000} onClose={() => setSuccess('')}>
         <Alert severity="success">{success}</Alert>
       </Snackbar>
-      <Snackbar
-        open={!!error}
-        autoHideDuration={3000}
-        onClose={() => setError("")}
-      >
+      <Snackbar open={!!error} autoHideDuration={3000} onClose={() => setError('')}>
         <Alert severity="error">{error}</Alert>
       </Snackbar>
 
       <form onSubmit={handleSubmit}>
         <Stack spacing={2}>
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
-              gap: 2,
-            }}
-          >
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
             <TextField
               id="amount-field"
               label="Amount"
@@ -111,8 +97,8 @@ export default function TransactionForm() {
               required
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              inputProps={{ min: "0", step: "0.01" }}
-              InputLabelProps={{ htmlFor: "amount-field" }}
+              inputProps={{ min: '0', step: '0.01' }}
+              InputLabelProps={{ htmlFor: 'amount-field' }}
             />
 
             <TextField
@@ -122,10 +108,10 @@ export default function TransactionForm() {
               required
               value={type}
               onChange={(e) => {
-                setType(e.target.value as "income" | "expense");
-                setCategoryId("");
+                setType(e.target.value as 'income' | 'expense');
+                setCategoryId(''); // Clear category when type changes
               }}
-              InputLabelProps={{ htmlFor: "type-field" }}
+              InputLabelProps={{ htmlFor: 'type-field' }}
             >
               <MenuItem value="">Select type</MenuItem>
               <MenuItem value="income">Income</MenuItem>
@@ -140,12 +126,19 @@ export default function TransactionForm() {
               value={categoryId}
               onChange={(e) => setCategoryId(e.target.value)}
               disabled={!type || filteredCategories.length === 0}
-              InputLabelProps={{ htmlFor: "category-field" }}
+              InputLabelProps={{ htmlFor: 'category-field' }}
               SelectProps={{
                 renderValue: (selected) => {
                   const category = categories.find((c) => c.id === selected);
-                  return category?.name ?? "";
-                },
+                  return (
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <Box sx={{ mr: 1, display: 'flex', alignItems: 'center' }}>
+                        {renderCategoryIcon(category?.icon, { fontSize: 'small' }, category?.name)}
+                      </Box>
+                      {category?.name}
+                    </Box>
+                  );
+                }
               }}
             >
               {!type ? (
@@ -154,7 +147,14 @@ export default function TransactionForm() {
                 <MenuItem value="">No categories available</MenuItem>
               ) : (
                 filteredCategories.map((c) => (
-                  <MenuItem key={c.id} value={c.id}>{c.name}</MenuItem>
+                  <MenuItem key={c.id} value={c.id}>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <Box sx={{ mr: 1, display: 'flex', alignItems: 'center' }}>
+                        {renderCategoryIcon(c.icon, { fontSize: 'small' }, c.name)}
+                      </Box>
+                      <span>{c.name}</span>
+                    </Box>
+                  </MenuItem>
                 ))
               )}
             </TextField>
@@ -166,7 +166,7 @@ export default function TransactionForm() {
               required
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              InputLabelProps={{ shrink: true, htmlFor: "date-field" }}
+              InputLabelProps={{ shrink: true, htmlFor: 'date-field' }}
             />
           </Box>
 
@@ -178,7 +178,7 @@ export default function TransactionForm() {
             onChange={(e) => setNote(e.target.value)}
             multiline
             rows={2}
-            InputLabelProps={{ htmlFor: "note-field" }}
+            InputLabelProps={{ htmlFor: 'note-field' }}
           />
 
           <Button
@@ -186,10 +186,8 @@ export default function TransactionForm() {
             variant="contained"
             size="large"
             disabled={!amount || !type || !categoryId || !date}
-            onClick={(e) => e.currentTarget.blur()}
           >
-            Add{" "}
-            {type ? (type === "income" ? "Income" : "Expense") : "Transaction"}
+            Add {type ? (type === 'income' ? 'Income' : 'Expense') : 'Transaction'}
           </Button>
         </Stack>
       </form>

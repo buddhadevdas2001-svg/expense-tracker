@@ -20,6 +20,7 @@ import { fetchTransactions } from '../redux/slices/transactionSlice';
 import type { RootState, AppDispatch } from '../redux/store';
 import DeleteIcon from '@mui/icons-material/Delete';
 import IconButton from '@mui/material/IconButton';
+import { renderCategoryIcon } from '../utils/categoryIcons';
 
 export default function Budget() {
   const dispatch = useDispatch<AppDispatch>();
@@ -59,7 +60,7 @@ export default function Budget() {
           month: selectedMonth,
         })
       ).unwrap();
-      
+
       setAmount('');
       setCategoryId('');
       setSuccess('Budget set successfully!');
@@ -72,7 +73,7 @@ export default function Budget() {
 
   const handleDeleteBudget = async (id: string) => {
     if (!user) return;
-    
+
     try {
       await dispatch(deleteBudget({ id, user_id: user.id })).unwrap();
       setSuccess('Budget deleted successfully!');
@@ -97,9 +98,7 @@ export default function Budget() {
     }));
   }, [budgets, transactions, selectedMonth]);
 
-  const expenseCategories = categories.filter(
-    (c) => c.type === 'expense' || c.type === 'both',
-  );
+  const expenseCategories = categories.filter((c) => c.type === 'expense' || c.type === 'both');
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -134,7 +133,11 @@ export default function Budget() {
           >
             <MenuItem value="">Select Category</MenuItem>
             {expenseCategories.map((cat) => (
-              <MenuItem key={cat.id} value={cat.id}>{cat.name}</MenuItem>
+              <MenuItem key={cat.id} value={cat.id}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  {renderCategoryIcon(cat.icon, { fontSize: 'small' }, cat.name)} {cat.name}
+                </Box>
+              </MenuItem>
             ))}
           </TextField>
           <TextField
@@ -143,7 +146,7 @@ export default function Budget() {
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             sx={{ minWidth: 150 }}
-            inputProps={{ min: "0", step: "0.01" }}
+            inputProps={{ min: '0', step: '0.01' }}
           />
           <Button variant="contained" onClick={handleSetBudget}>
             Set Budget
@@ -169,16 +172,19 @@ export default function Budget() {
                 <Card>
                   <CardContent>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <Typography variant="h6">
-                        {category ? category.name : 'Unknown Category'}
-                      </Typography>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        {category ? renderCategoryIcon(category.icon, { fontSize: 'small' }, category.name) : null}
+                        <Typography variant="h6">
+                          {category ? category.name : 'Unknown Category'}
+                        </Typography>
+                      </Box>
                       <IconButton size="small" onClick={() => handleDeleteBudget(budget.id)}>
                         <DeleteIcon />
                       </IconButton>
                     </Box>
-                    <Typography color="textSecondary">Budget: ₹{budget.amount.toLocaleString()}</Typography>
+                    <Typography color="textSecondary">Budget: ₹{budget.amount.toLocaleString('en-IN')}</Typography>
                     <Typography variant="body2" sx={{ mt: 1 }}>
-                      Spent: ₹{budget.spent.toLocaleString()}
+                      Spent: ₹{budget.spent.toLocaleString('en-IN')}
                     </Typography>
                     <Box sx={{ mt: 1 }}>
                       <LinearProgress
@@ -190,13 +196,13 @@ export default function Budget() {
                           backgroundColor: '#e0e0e0',
                           '& .MuiLinearProgress-bar': {
                             backgroundColor: isOverBudget ? '#ef4444' : '#10b981',
-                          }
+                          },
                         }}
                       />
                     </Box>
                     {isOverBudget && (
                       <Typography color="error" variant="caption" sx={{ mt: 1, display: 'block' }}>
-                        Over budget by ₹{(budget.spent - budget.amount).toLocaleString()}
+                        Over budget by ₹{(budget.spent - budget.amount).toLocaleString('en-IN')}
                       </Typography>
                     )}
                   </CardContent>

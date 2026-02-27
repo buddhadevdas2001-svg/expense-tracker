@@ -56,7 +56,6 @@ function AppContent() {
 
   useEffect(() => {
     dispatch(checkSession());
-
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       dispatch(setUser(session?.user || null));
     });

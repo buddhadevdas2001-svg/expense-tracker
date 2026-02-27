@@ -1,6 +1,15 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { supabase } from "../../lib/supabase";
-import type { Category } from "../../types/category";
+
+interface Category {
+  id: string;
+  user_id: string;
+  name: string;
+  icon: string;
+  color: string;
+  type: 'income' | 'expense' | 'both';
+  is_default: boolean;
+}
 
 interface CategoryState {
   categories: Category[];

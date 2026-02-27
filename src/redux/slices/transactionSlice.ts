@@ -15,7 +15,6 @@ interface Transaction {
     icon: string;
     color: string;
     is_default: boolean;
-    type?: "income" | "expense" | "both";
   } | null;
 }
 
@@ -29,34 +28,6 @@ const initialState: TransactionState = {
   loading: false,
 };
 
-async function ensureProfileExists(userId: string) {
-  const { data: existingProfile, error: profileCheckError } = await supabase
-    .from("profiles")
-    .select("id")
-    .eq("id", userId)
-    .maybeSingle();
-
-  if (profileCheckError) {
-    throw profileCheckError;
-  }
-
-  if (existingProfile) return;
-
-  const { data: authData, error: authError } = await supabase.auth.getUser();
-  if (authError) {
-    throw authError;
-  }
-
-  const { error: profileInsertError } = await supabase.from("profiles").insert({
-    id: userId,
-    email: authData.user?.email ?? null,
-  });
-
-  if (profileInsertError) {
-    throw profileInsertError;
-  }
-}
-
 export const fetchTransactions = createAsyncThunk(
   "transactions/fetch",
   async (userId: string) => {
@@ -69,8 +40,7 @@ export const fetchTransactions = createAsyncThunk(
           name,
           icon,
           color,
-          is_default,
-          type
+          is_default
         )
       `)
       .eq("user_id", userId)
@@ -88,18 +58,6 @@ export const fetchTransactions = createAsyncThunk(
 export const addTransaction = createAsyncThunk(
   "transactions/add",
   async (transaction: Omit<Transaction, "id">) => {
-    try {
-      await ensureProfileExists(transaction.user_id);
-    } catch (error: unknown) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Failed to validate profile before transaction insert.";
-      throw new Error(
-        `Cannot add transaction because profile sync failed. ${message}`,
-      );
-    }
-
     const { data, error } = await supabase
       .from("transactions")
       .insert([{
@@ -117,19 +75,13 @@ export const addTransaction = createAsyncThunk(
           name,
           icon,
           color,
-          is_default,
-          type
+          is_default
         )
       `)
       .single();
 
     if (error) {
       console.error('Error adding transaction:', error);
-      if (error.code === "23503" && error.message.includes("transactions_user_id_fkey")) {
-        throw new Error(
-          "Profile record not found for this user. Create it in Supabase (profiles table) and try again.",
-        );
-      }
       throw error;
     }
     return data;
@@ -158,8 +110,7 @@ export const updateTransaction = createAsyncThunk(
           name,
           icon,
           color,
-          is_default,
-          type
+          is_default
         )
       `)
       .single();

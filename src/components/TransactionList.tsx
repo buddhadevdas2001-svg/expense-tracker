@@ -27,6 +27,7 @@ import {
 } from '@mui/material';
 import { Button } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
+import { renderCategoryIcon } from '../utils/categoryIcons';
 
 type TransactionWithCategory = RootState['transactions']['transactions'][number] & {
   category?: {
@@ -35,7 +36,7 @@ type TransactionWithCategory = RootState['transactions']['transactions'][number]
     icon: string;
     color: string;
     is_default: boolean;
-    type?: 'income' | 'expense' | 'both';
+    type?: string;
   } | null;
 };
 
@@ -180,7 +181,11 @@ export default function TransactionList() {
         >
           <MenuItem value="">All Categories</MenuItem>
           {categories.map((cat: Category) => (
-            <MenuItem key={cat.id} value={cat.id}>{cat.name}</MenuItem>
+            <MenuItem key={cat.id} value={cat.id}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                {renderCategoryIcon(cat.icon, { fontSize: 'small' }, cat.name)} {cat.name}
+              </Box>
+            </MenuItem>
           ))}
         </TextField>
 
@@ -231,6 +236,7 @@ export default function TransactionList() {
                   <TableCell>
                     {tx.category ? (
                       <Chip
+                        icon={renderCategoryIcon(tx.category.icon, { fontSize: 'small', sx: { color: '#fff !important' } }, tx.category.name)}
                         label={tx.category.name || 'Unknown'}
                         size="small"
                         sx={{
@@ -269,8 +275,7 @@ export default function TransactionList() {
                   <TableCell align="right">
                     <IconButton
                       size="small"
-                      onClick={(e) => {
-                        e.currentTarget.blur();
+                      onClick={() => {
                         setEditData(tx);
                         setOpen(true);
                       }}
@@ -335,12 +340,26 @@ export default function TransactionList() {
             SelectProps={{
               renderValue: (selected) => {
                 const category = categories.find((c: Category) => c.id === selected);
-                return category?.name ?? '';
+                return (
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Box sx={{ mr: 1, display: 'flex', alignItems: 'center' }}>
+                      {renderCategoryIcon(category?.icon, { fontSize: 'small' }, category?.name)}
+                    </Box>
+                    {category?.name}
+                  </Box>
+                );
               }
             }}
           >
             {categories.map((cat: Category) => (
-              <MenuItem key={cat.id} value={cat.id}>{cat.name}</MenuItem>
+              <MenuItem key={cat.id} value={cat.id}>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Box sx={{ mr: 1, display: 'flex', alignItems: 'center' }}>
+                    {renderCategoryIcon(cat.icon, { fontSize: 'small' }, cat.name)}
+                  </Box>
+                  <span>{cat.name}</span>
+                </Box>
+              </MenuItem>
             ))}
           </TextField>
 
@@ -381,3 +400,4 @@ export default function TransactionList() {
     </Paper>
   );
 }
+
